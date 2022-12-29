@@ -6,17 +6,16 @@ require('dotenv').config()
 const {
     google
 } = require('googleapis');
-const crmProvider = process.env.CRM_PROVIDER;
 
-let authorize = require('./Authorization/authorise.js');
-let refreshAccessToken = require('./Authorization/refresh.js');
-let sheetLength = require('./Controllers/Google/sheetLength.js');
-let {
+const authorize = require('./Authorization/authorise.js');
+const refreshAccessToken = require('./Authorization/refresh.js');
+const {
     readSheet,
-    notFoundDoc
-} = require('./Controllers/Google/googleActions.js');
+    markSheet,
+    notFoundDoc,
+    sheetLength
+} = require('./Controllers/Google/googleFunctions.js');
 let counter = 1;
-let entity_ids;
 let LIMIT;
 
 const limits = async () => {
@@ -27,7 +26,7 @@ const limits = async () => {
 
 const readEntity = async () => {
     let sheets = await authorisationProcess();
-    entity_ids = await readSheet(sheets, counter);
+    let entity_ids = await readSheet(sheets, counter);
     listDocuments(entity_ids);
 }
 
