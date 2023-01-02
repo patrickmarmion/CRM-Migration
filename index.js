@@ -16,18 +16,22 @@ const {
     sheetLength
 } = require('./Controllers/Google/googleFunctions.js');
 let counter = 1;
-let LIMIT;
 
 const limits = async () => {
     let sheets = await authorisationProcess();
-    LIMIT = await sheetLength(sheets);
-    readEntity();
+    const limit = await sheetLength(sheets);
+    if (counter <= limit) {
+        readEntity()
+    }
 };
 
 const readEntity = async () => {
     let sheets = await authorisationProcess();
-    let entity_ids = await readSheet(sheets, counter);
-    listDocuments(entity_ids);
+    let rowDetail = await readSheet(sheets, counter);
+    await sortByEntityType(rowDetail);
+    counter++;
+    console.log(counter);
+    limits();
 }
 
 const authorisationProcess = async () => {
