@@ -127,7 +127,7 @@ const markFail = async (docDetail) => {
 
 const markSheetSuccess = async (sheets, counter, id, crmEntity, docDetail) => {
     const values = [
-        [`${docDetail.id}`, `${docDetail.name}`, `${docDetail.dateComplete}`, `${crmEntity}`, `${id}`]
+        [`${docDetail.id}`, `${docDetail.name}`, `${crmEntity}`, `${id}`]
     ];
     const resource = {
         values,
@@ -146,7 +146,7 @@ const markSheetSuccess = async (sheets, counter, id, crmEntity, docDetail) => {
 
 const markSheetFailure = async (sheets, counter, docDetail) => {
     const values = [
-        [`${docDetail.id}`, `${docDetail.name}`, `${docDetail.dateComplete}`, 'No linked Entity']
+        [`${docDetail.id}`, `${docDetail.name}`, 'No linked Entity']
     ];
     const resource = {
         values,

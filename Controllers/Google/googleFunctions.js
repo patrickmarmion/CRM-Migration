@@ -5,22 +5,24 @@ const {
 require('dotenv').config({ path: "../.env" })
 const sheetName = process.env.SPREADSHEET_NAME;
 const spreadsheetId = process.env.SPREADSHEET_ID;
-let old_entity_id;
-let new_entity_id;
 
 const readSheet = async (sheets, counter) => {
-    const ranges = [`${sheetName}!A${counter}:B${counter}`];
+    const ranges = [`${sheetName}!A${counter}:E${counter}`];
     const {
         data
     } = await sheets.spreadsheets.values.batchGet({
         spreadsheetId,
         ranges,
     });
-    old_entity_id = await data.valueRanges[0].values[0][0];
-    new_entity_id = await data.valueRanges[0].values[0][1];
+    let old_entity_id = await data.valueRanges[0].values[0][3];
+    let new_entity_id = await data.valueRanges[0].values[0][4];
+    let document_id = await data.valueRanges[0].values[0][0];
+    let crmEntity = await data.valueRanges[0].values[0][2];
     return {
         old_entity_id,
-        new_entity_id
+        new_entity_id,
+        document_id,
+        crmEntity
     }
 };
 
