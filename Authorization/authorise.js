@@ -7,7 +7,7 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = '../Credentials/token.json'; 
 const REFRESH_TOKEN_PATH = '../Credentials/refresh.json'
 
-async function authorize(credentials) {
+const authorize = async (credentials) => {
     const {
         client_secret,
         client_id,
@@ -26,7 +26,8 @@ async function authorize(credentials) {
         return authorizedClient;
     }
 };
-async function getNewToken(oAuth2Client) {
+
+const getNewToken = async (oAuth2Client) => {
     const authUrl = oAuth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES,
@@ -48,15 +49,16 @@ async function getNewToken(oAuth2Client) {
         forceRefreshOnFailure: true
     });
     fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
+    fs.writeFileSync(REFRESH_TOKEN_PATH, JSON.stringify(tokens)); //Edited line for testing
     console.log('Token stored to', TOKEN_PATH);
 
-    try {
+    /*try {
         fs.readFileSync(REFRESH_TOKEN_PATH);
         return oAuth2Client;
     } catch (err) {
         fs.writeFileSync(REFRESH_TOKEN_PATH, JSON.stringify(tokens));
         return oAuth2Client;
-    }
+    }*/
 };
 
 module.exports = authorize;

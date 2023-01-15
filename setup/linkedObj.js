@@ -8,7 +8,7 @@ require('dotenv').config({
 const {
     google
 } = require('googleapis');
-const axios = require('axios');
+const axiosInstance = require("../Config/axiosInstance");
 const fs = require('fs');
 const api_key = process.env.PANDADOC_API_KEY;
 const headers = {
@@ -39,10 +39,10 @@ const listDocuments = async () => {
     if (counter % 100 == 0) {
         index = 0;
         page++;
-        let response = await axios.get(`https://api.pandadoc.com/public/v1/documents?page=${page}&count=100&order_by=date_created`, headers);
+        let response = await axiosInstance.get(`https://api.pandadoc.com/public/v1/documents?page=${page}&count=100&order_by=date_created`, headers);
         await length(response.data);
     } else if (counter % 100 !== 0) {
-        let response = await axios.get(`https://api.pandadoc.com/public/v1/documents?page=${page}&count=100&order_by=date_created`, headers);
+        let response = await axiosInstance.get(`https://api.pandadoc.com/public/v1/documents?page=${page}&count=100&order_by=date_created`, headers);
         await length(response.data);
     } else {
         console.log('Script Run Comp'); //Want to check if this is ever hit
@@ -58,12 +58,13 @@ const length = async (response) => {
 };
 
 const getDoc = async (document_id) => {
-    let response = await axios.get(`https://api.pandadoc.com/public/v1/documents/${document_id}/details`, headers);
+    let response = await axiosInstance.get(`https://api.pandadoc.com/public/v1/documents/${document_id}/details`, headers);
     let metadata = response.data.metadata;
     let docDetail = {
         id: response.data.id,
         name: response.data.name,
-        dateComplete: response.data.date_completed
+        dateComplete: response.data.date_completed,
+        status: response.data.status
     }
 
     switch (true) {
@@ -146,7 +147,7 @@ const markSheetSuccess = async (sheets, counter, id, crmEntity, docDetail) => {
 
 const markSheetFailure = async (sheets, counter, docDetail) => {
     const values = [
-        [`${docDetail.id}`, `${docDetail.name}`, 'No linked Entity']
+        [`${docDetail.id}`, `${docDetail.name}`, `${docDetail.status}`, 'No linked Entity']
     ];
     const resource = {
         values,

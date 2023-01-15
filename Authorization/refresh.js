@@ -3,9 +3,9 @@ const axios = require('axios');
 
 async function refreshAccessToken() {
     let url = 'https://www.googleapis.com/oauth2/v4/token';
-    let cred = fs.readFileSync('../../Credentials/credentials.json');
+    let cred = fs.readFileSync('../Credentials/credentials.json');
     let creds = JSON.parse(cred);
-    let rawdata = fs.readFileSync('../../Credentials/refresh.json');
+    let rawdata = fs.readFileSync('../Credentials/refresh.json');
     let files = JSON.parse(rawdata);
     const refresh_token = files.refresh_token;
     const client_id = creds.installed.client_id;
@@ -18,7 +18,7 @@ async function refreshAccessToken() {
     }
     let response = await axios.post(url, body);
     let accessToken = response.data.access_token;
-    const fileName = '../../Credentials/token.json';
+    const fileName = '../Credentials/token.json';
     const file = require(fileName);
     file.access_token = accessToken;
     fs.writeFile(fileName, JSON.stringify(file), function writeJSON(err) {
