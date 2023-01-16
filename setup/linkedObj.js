@@ -63,7 +63,7 @@ const getDoc = async (document_id) => {
     let docDetail = {
         id: response.data.id,
         name: response.data.name,
-        dateComplete: response.data.date_completed,
+        dateCreated: response.data.date_created,
         status: response.data.status
     }
 
@@ -128,16 +128,15 @@ const markFail = async (docDetail) => {
 
 const markSheetSuccess = async (sheets, counter, id, crmEntity, docDetail) => {
     const values = [
-        [`${docDetail.id}`, `${docDetail.name}`, `${docDetail.status}`,`${crmEntity}`, `${id}`]
+        [`${docDetail.id}`, `${docDetail.name}`, `${docDetail.dateCreated}`, `${docDetail.status}`, `${crmEntity}`, `${id}`]
     ];
     const resource = {
         values,
     };
     const range = `${sheetName}!A${counter}`;
     const valueInputOption = 'USER_ENTERED';
-    const {
-        data
-    } = await sheets.spreadsheets.values.update({
+    
+    await sheets.spreadsheets.values.update({
         spreadsheetId,
         range,
         resource,
@@ -147,7 +146,7 @@ const markSheetSuccess = async (sheets, counter, id, crmEntity, docDetail) => {
 
 const markSheetFailure = async (sheets, counter, docDetail) => {
     const values = [
-        [`${docDetail.id}`, `${docDetail.name}`, `${docDetail.status}`, 'No linked Entity']
+        [`${docDetail.id}`, `${docDetail.name}`, `${docDetail.dateCreated}`, `${docDetail.status}`, 'No linked Entity']
     ];
     const resource = {
         values,
