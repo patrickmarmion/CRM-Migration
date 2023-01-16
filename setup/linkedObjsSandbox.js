@@ -35,7 +35,7 @@ let page = 1;
 let index = -1;
 
 const listDocuments = async () => {
-    await new Promise(resolve => setTimeout(resolve, 6500));
+    await new Promise(resolve => setTimeout(resolve, 3000));
     index++;
     if (counter % 100 == 0) {
         index = 0;
@@ -59,13 +59,13 @@ const length = async (response) => {
 };
 
 const getDoc = async (document_id) => {
-    await new Promise(resolve => setTimeout(resolve, 6500));
+    await new Promise(resolve => setTimeout(resolve, 5800));
     let response = await axiosInstance.get(`https://api.pandadoc.com/public/v1/documents/${document_id}/details`, headers);
     let metadata = response.data.metadata;
     let docDetail = {
         id: response.data.id,
         name: response.data.name,
-        dateComplete: response.data.date_completed,
+        dateCreated: response.data.date_created,
         status: response.data.status
     }
 
@@ -130,7 +130,7 @@ const markFail = async (docDetail) => {
 
 const markSheetSuccess = async (sheets, counter, id, crmEntity, docDetail) => {
     const values = [
-        [`${docDetail.id}`, `${docDetail.name}`, `${docDetail.status}`,`${crmEntity}`, `${id}`]
+        [`${docDetail.id}`, `${docDetail.name}`, `${docDetail.dateCreated}`, `${docDetail.status}`,`${crmEntity}`, `${id}`]
     ];
     const resource = {
         values,
@@ -149,7 +149,7 @@ const markSheetSuccess = async (sheets, counter, id, crmEntity, docDetail) => {
 
 const markSheetFailure = async (sheets, counter, docDetail) => {
     const values = [
-        [`${docDetail.id}`, `${docDetail.name}`, `${docDetail.status}`, 'No linked Entity']
+        [`${docDetail.id}`, `${docDetail.name}`, `${docDetail.dateCreated}`, `${docDetail.status}`, 'No linked Entity']
     ];
     const resource = {
         values,

@@ -1,8 +1,7 @@
 const fs = require('fs');
-const axios = require('axios');
+const axiosInstance = require("../Config/axiosInstance");
 
-async function refreshAccessToken() {
-    let url = 'https://www.googleapis.com/oauth2/v4/token';
+const refreshAccessToken = async () => {
     let cred = fs.readFileSync('../Credentials/credentials.json');
     let creds = JSON.parse(cred);
     let rawdata = fs.readFileSync('../Credentials/refresh.json');
@@ -16,7 +15,7 @@ async function refreshAccessToken() {
         "refresh_token": refresh_token,
         "grant_type": "refresh_token"
     }
-    let response = await axios.post(url, body);
+    let response = await axiosInstance.post('https://www.googleapis.com/oauth2/v4/token', body);
     let accessToken = response.data.access_token;
     const fileName = '../Credentials/token.json';
     const file = require(fileName);

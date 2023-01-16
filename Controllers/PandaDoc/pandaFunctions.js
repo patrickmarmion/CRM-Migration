@@ -1,7 +1,7 @@
 require('dotenv').config({
     path: "../../.env"
 });
-const axios = require('axios');
+const axiosInstance = require("../../Config/axiosInstance");
 const api_key = process.env.PANDADOC_API_KEY;
 const headers = {
     headers: {
@@ -17,7 +17,7 @@ let confirmation;
 let correctID;
 
 const checkRow = async (rowDetail) => {
-    let result = await axios.get(`https://api.pandadoc.com/public/v1/documents/${rowDetail.document_id}/details`, headers);
+    let result = await axiosInstance.get(`https://api.pandadoc.com/public/v1/documents/${rowDetail.document_id}/details`, headers);
     let linkedObj = result.data.linked_objects[0];
     if (rowDetail.old_entity_id in linkedObj) {
         return true
@@ -31,9 +31,9 @@ const checkRow = async (rowDetail) => {
 };
 
 const removeLinkedObj = async (document_id) => {
-    let response_list = await axios.get(`https://api.pandadoc.com/public/v1/documents/${document_id}/linked-objects`, headers);
+    let response_list = await axiosInstance.get(`https://api.pandadoc.com/public/v1/documents/${document_id}/linked-objects`, headers);
     let linked_object_id = await response_list.data.linked_objects[0].id;
-    await axios.delete(`https://api.pandadoc.com/public/v1/documents/${document_id}/linked-objects/${linked_object_id}`, {
+    await axiosInstance.delete(`https://api.pandadoc.com/public/v1/documents/${document_id}/linked-objects/${linked_object_id}`, {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `API-Key ${api_key}`
@@ -50,7 +50,7 @@ const opportunity = async (rowDetail) => {
         "entity_type": crmMetadataOpportunity,
         "entity_id": `${rowDetail.new_entity_id}`
     }
-    await axios.post(`https://api.pandadoc.com/public/v1/documents/${document_id}/linked-objects`, body, headers);
+    await axiosInstance.post(`https://api.pandadoc.com/public/v1/documents/${document_id}/linked-objects`, body, headers);
     console.log('linked opportunity object');
 }
 
@@ -61,7 +61,7 @@ const account = async (rowDetail) => {
         "entity_type": crmMetadataAccount,
         "entity_id": `${rowDetail.new_entity_id}`
     }
-    await axios.post(`https://api.pandadoc.com/public/v1/documents/${document_id}/linked-objects`, body, headers);
+    await axiosInstance.post(`https://api.pandadoc.com/public/v1/documents/${document_id}/linked-objects`, body, headers);
     console.log('linked account object');
 }
 
@@ -72,7 +72,7 @@ const contact = async (rowDetail) => {
         "entity_type": crmMetadataContact,
         "entity_id": `${rowDetail.new_entity_id}`
     }
-    await axios.post(`https://api.pandadoc.com/public/v1/documents/${document_id}/linked-objects`, body, headers);
+    await axiosInstance.post(`https://api.pandadoc.com/public/v1/documents/${document_id}/linked-objects`, body, headers);
     console.log('linked contact object');
 }
 
