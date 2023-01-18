@@ -1,5 +1,4 @@
 require('dotenv').config({ path: "../.env" })
-const sheetName = process.env.SPREADSHEET_NAME;
 const spreadsheetId = process.env.SPREADSHEET_ID;
 
 const createSheet = async (sheets, title) => {
@@ -18,7 +17,7 @@ const createSheet = async (sheets, title) => {
     return title
 }
 
-const readSheet = async (sheets) => {
+const readSheet = async (sheets, sheetName) => {
     const ranges = [`${sheetName}!A:H`];
     const {
         data
@@ -54,22 +53,25 @@ const writeSheet = async (sheets, title, filteredRows) => {
 }
 
 const version2Sheet = async (sheets) => {
+    let sheetName = process.env.SPREADSHEET_NAME;
     let title = await createSheet(sheets, "Version 2 Docs")
-    let rows = await readSheet(sheets)
+    let rows = await readSheet(sheets, sheetName)
     let filteredRows = await filterRows(rows, "Document Version: Editor 2");
     await writeSheet(sheets, title, filteredRows);
 }
 
-const errorSheet = async () => {
-    await createSheet(sheets, "Error Docs")
-    let rows = await readSheet(sheets)
-    let filteredRows = await filterRows(rows, "Document on page:" );
+const errorSheet = async (sheets) => {
+    let sheetName = process.env.SPREADSHEET_NAME;
+    let title = await createSheet(sheets, "Error Docs")
+    let rows = await readSheet(sheets, sheetName)
+    let filteredRows = await filterRows(rows, "Error Message: Please check this docs logs" );
     await writeSheet(sheets, title, filteredRows);
 }
 
-const linkedObjSheet = async () => {
-    await createSheet(sheets, "Docs With Linked Objects")
-    let rows = await readSheet(sheets)
+const linkedObjSheet = async (sheets) => {
+    let sheetName = "Version 2 Docs";
+    let title = await createSheet(sheets, "Docs With Linked Objects")
+    let rows = await readSheet(sheets, sheetName)
     let filteredRows = await filterRowsLinkedObj(rows);
     await writeSheet(sheets, title, filteredRows);
 }
