@@ -40,7 +40,7 @@ const listDocuments = async () => {
 
 const eachDoc = async (docs) => {
     for (const doc in docs) {
-        await new Promise(resolve => setTimeout(resolve, 5400));
+        await new Promise(resolve => setTimeout(resolve, 500));
         try {
             let response = await axiosInstance.get(`https://api.pandadoc.com/public/v1/documents/${docs[doc].id}/details`, headers);
 
@@ -101,7 +101,7 @@ const markSheet = async (sheets, docDetail, linked_object) => {
 
 const markError = async (sheets, url) => {
     const values = [
-        [`Document on page: ${page}, errored`, `${url}`]
+        [`Error Message: Please check this docs logs`, `${url}`, `Page: ${page}`]
     ];
     const resource = {
         values,
