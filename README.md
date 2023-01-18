@@ -5,6 +5,7 @@ NPM Modules:
 - Axios (https://www.npmjs.com/package/axios)
 - Google APIs (https://www.npmjs.com/package/googleapis)
 - Dot env (https://www.npmjs.com/package/dotenv)
+- Readline Promise (https://www.npmjs.com/package/readline-promise)
 
 1) Setup Application in Google 
 2) Run setup Script
