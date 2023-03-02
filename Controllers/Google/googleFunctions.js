@@ -37,7 +37,7 @@ const readSheet = async (counter, retries = 0) => {
         });
         let row = {
             new_entity_id: await data.valueRanges[0].values[0][8],
-            new_document_id: await data.valueRanges[0].values[0][9],
+            new_document_id: await data.valueRanges[0].values[0][0],
             crmEntity: await data.valueRanges[0].values[0][6],
             provider: await data.valueRanges[0].values[0][5]
         }
