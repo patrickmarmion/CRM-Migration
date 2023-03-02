@@ -1,69 +1,70 @@
+require('dotenv').config({
+    path: ".env"
+});
 const fs = require('fs');
 const {
     google
 } = require('googleapis');
-require('dotenv').config({ path: "../.env" })
-const sheetName = process.env.SPREADSHEET_NAME;
+let authorize = require('../../Authorization/authorise');
 const spreadsheetId = process.env.SPREADSHEET_ID;
+const sheetName = process.env.SPREADSHEET_NAME;
 
-const readSheet = async (sheets, counter) => {
-    const ranges = [`${sheetName}!A${counter}:E${counter}`];
-    const {
-        data
-    } = await sheets.spreadsheets.values.batchGet({
-        spreadsheetId,
-        ranges,
-    });
-    let old_entity_id = await data.valueRanges[0].values[0][3];
-    let new_entity_id = await data.valueRanges[0].values[0][4];
-    let document_id = await data.valueRanges[0].values[0][0];
-    let crmEntity = await data.valueRanges[0].values[0][2];
-    return {
-        old_entity_id,
-        new_entity_id,
-        document_id,
-        crmEntity
+//AUTH FUNCTION
+const sheetAuth = async () => {
+    try {
+        const content = fs.readFileSync('./Credentials/credentials.json');
+        const auth = await authorize(JSON.parse(content), './Credentials/token.json', './Credentials/refresh.json');
+        const sheets = google.sheets({
+            version: 'v4',
+            auth
+        });
+        return sheets
+    } catch (error) {
+        console.log("Error Occured at the sheetAuth function")
+        throw error;
     }
 };
 
-const markSheet = async (document_id, sheets, counter) => {
-    const values = [
-        ['Success', `${document_id}`]
-    ];
-    const resource = {
-        values,
-    };
-    const range = `${sheetName}!D${counter}:E${counter}`;
-    const valueInputOption = 'USER_ENTERED';
-
-    const {
-        data
-    } = await sheets.spreadsheets.values.update({
-        spreadsheetId,
-        range,
-        resource,
-        valueInputOption
-    })
+const readSheet = async (counter, retries = 0) => {
+    let sheets = await sheetAuth();
+    try {
+        const ranges = [`${sheetName}!A${counter}:K${counter}`];
+        const {
+            data
+        } = await sheets.spreadsheets.values.batchGet({
+            spreadsheetId,
+            ranges,
+        });
+        let row = {
+            new_entity_id: await data.valueRanges[0].values[0][8],
+            new_document_id: await data.valueRanges[0].values[0][9],
+            crmEntity: await data.valueRanges[0].values[0][6],
+            provider: await data.valueRanges[0].values[0][5]
+        }
+        return row
+    } catch (error) {
+        if (error.response) {
+            if (retries >= 5) {
+              throw new Error("Max retries exceeded, giving up.");
+            }
+            console.log(`Received error, retrying in 3 seconds... (attempt ${retries + 1} of 5)`);
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            return await readSheet(counter, retries + 1);
+          }
+          throw error;
+    }
 };
 
-const notFoundDoc = async (sheets, entity_ids, counter) => {
-    const values = [
-        [`${entity_ids.old_entity_id}`]
-    ];
-    const resource = {
-        values,
-    };
-    const range = `${sheetName}!E${counter}`;
-    const valueInputOption = 'USER_ENTERED';
-
-    const {
-        data
-    } = await sheets.spreadsheets.values.update({
+const writeColumn = async (item, column, counter) => {
+    let sheets = await sheetAuth();
+    await sheets.spreadsheets.values.update({
         spreadsheetId,
-        range,
-        resource,
-        valueInputOption
-    })
+        range: `${sheetName}!${column}${counter}`,
+        valueInputOption: "USER_ENTERED",
+        resource: {
+          values: [[item]],
+        },
+      });
 }
 
 const sheetLength = async sheets => {
@@ -77,8 +78,8 @@ const sheetLength = async sheets => {
     let len = data.values.length;
     return len
 };
-module.exports = { readSheet,
-    markSheet,
-    notFoundDoc,
+module.exports = {
+    readSheet,
+    writeColumn,
     sheetLength
 }
