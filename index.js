@@ -1,45 +1,28 @@
-const fs = require('fs');
-require('dotenv').config()
 const {
-    google
-} = require('googleapis');
-
-const authorize = require('./Authorization/authorise.js');
-const refreshAccessToken = require('./Authorization/refresh.js');
-const {
+    writeColumn,
     readSheet,
-    markSheet,
-    notFoundDoc,
     sheetLength
-} = require('./Controllers/Google/googleFunctions.js');
-let counter = 1;
+} = require('./Controllers/Google/googleFunctions');
+const updateLinkedObject = require('./Controllers/PandaDoc/updateNewDocLinkedObj');
 
-const limits = async () => {
-    let sheets = await authorisationProcess();
-    const limit = await sheetLength(sheets);
-    if (counter <= limit) {
-        readEntity()
+const readEntity = async (counter) => {
+    let rowDetail = await readSheet(counter);
+    if ((rowDetail.provider) && (rowDetail.crmEntity === "opportunity") || (rowDetail.provider) && (rowDetail.crmEntity === "deal")) {
+        await updateLinkedObject(rowDetail);
+        await writeColumn("Object Changed", "K", counter)
+    } else {
+        await new Promise(resolve => setTimeout(resolve, 250));
+        return
+    }
+}
+
+const script = async () => {
+    let counter = await sheetLength();
+
+    for (counter; counter >= 1; counter--) {
+        await readEntity(counter)
+        console.log(counter)
     }
 };
 
-const readEntity = async () => {
-    let sheets = await authorisationProcess();
-    let rowDetail = await readSheet(sheets, counter);
-    await sortByEntityType(rowDetail);
-    counter++;
-    console.log(counter);
-    limits();
-}
-
-const authorisationProcess = async () => {
-    const content = fs.readFileSync('./Credentials/credentials.json');
-    const auth = await authorize(JSON.parse(content));
-    const sheets = google.sheets({
-        version: 'v4',
-        auth
-    });
-    return sheets
-}
-
-setInterval(refreshAccessToken, 3480000);
-limits();
+script();
