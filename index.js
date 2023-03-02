@@ -1,6 +1,3 @@
-//This script reads through a google sheet of old linked object IDs and new linked object IDs
-//It searches for the pandadoc with the corresponding old ID and updates the linked object to the new CRM entity
-
 const fs = require('fs');
 require('dotenv').config()
 const {

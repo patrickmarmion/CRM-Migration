@@ -4,15 +4,13 @@ const {
 } = require('googleapis');
 const readline = require('readline-promise').default;
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-const TOKEN_PATH = '../Credentials/token.json'; 
-const REFRESH_TOKEN_PATH = '../Credentials/refresh.json'
 
-const authorize = async (credentials) => {
+const authorize = async (credentials, TOKEN_PATH, REFRESH_TOKEN_PATH) => {
     const {
         client_secret,
         client_id,
         redirect_uris
-    } = credentials.installed;
+    } = credentials.web;
     const oAuth2Client = new google.auth.OAuth2(
         client_id, client_secret, redirect_uris[0]
     );
@@ -22,12 +20,12 @@ const authorize = async (credentials) => {
         oAuth2Client.setCredentials(JSON.parse(token));
         return oAuth2Client;
     } catch (err) {
-        const authorizedClient = await getNewToken(oAuth2Client);
+        const authorizedClient = await getNewToken(oAuth2Client, TOKEN_PATH, REFRESH_TOKEN_PATH);
         return authorizedClient;
     }
 };
 
-const getNewToken = async (oAuth2Client) => {
+const getNewToken = async (oAuth2Client, TOKEN_PATH, REFRESH_TOKEN_PATH) => {
     const authUrl = oAuth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES,
@@ -49,16 +47,8 @@ const getNewToken = async (oAuth2Client) => {
         forceRefreshOnFailure: true
     });
     fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
-    fs.writeFileSync(REFRESH_TOKEN_PATH, JSON.stringify(tokens)); //Edited line for testing
+    fs.writeFileSync(REFRESH_TOKEN_PATH, JSON.stringify(tokens));
     console.log('Token stored to', TOKEN_PATH);
-
-    /*try {
-        fs.readFileSync(REFRESH_TOKEN_PATH);
-        return oAuth2Client;
-    } catch (err) {
-        fs.writeFileSync(REFRESH_TOKEN_PATH, JSON.stringify(tokens));
-        return oAuth2Client;
-    }*/
 };
 
 module.exports = authorize;
