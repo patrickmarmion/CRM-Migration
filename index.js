@@ -1,11 +1,14 @@
+require('dotenv').config({
+    path: "./.env"
+})
 const sheetLength = require('./Controllers/Google/sheetLength');
 const readSheet = require('./Controllers/Google/readSheet');
 const writeColumn = require('./Controllers/Google/writeColumn');
 const createLinkedObject = require('./Controllers/PandaDoc/createLinkedObj');
 const deleteLinkedObject = require('./Controllers/PandaDoc/deleteLinkedObj');
 const listLinkedObj = require('./Controllers/PandaDoc/listLinkedObj');
-const spreadsheetId = process.env.SPREADSHEET_ID;
-const sheetName = process.env.SPREADSHEET_NAME;
+const spreadsheetId = process.env.SPREADSHEET_ID ?? (() => { throw new Error("Please add SpreadSheet ID to the .env File") })();
+const sheetName = process.env.SPREADSHEET_NAME ?? (() => { throw new Error("Please add SpreadSheet Name to the .env File") })();
 
 const readEntity = async (counter) => {
     const { document_id, provider, crmEntity, new_entity_id, sheets } = await readSheet(counter, spreadsheetId, sheetName);
