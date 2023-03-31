@@ -11,11 +11,11 @@ const spreadsheetId = process.env.SPREADSHEET_ID ?? (() => { throw new Error("Pl
 const sheetName = process.env.SPREADSHEET_NAME ?? (() => { throw new Error("Please add SpreadSheet Name to the .env File") })();
 
 const readEntity = async (counter) => {
-    const { document_id, provider, crmEntity, new_entity_id, sheets } = await readSheet(counter, spreadsheetId, sheetName);
+    const { documentId, provider, crmEntity, newEntityId, sheets } = await readSheet(counter, spreadsheetId, sheetName);
     if (provider && (crmEntity === "opportunity" || crmEntity === "deal")) {
-        const linkedObjId = await listLinkedObj(document_id);
-        await deleteLinkedObject(document_id, linkedObjId);
-        await createLinkedObject(provider, crmEntity, new_entity_id);
+        const linkedObjId = await listLinkedObj(documentId);
+        await deleteLinkedObject(documentId, linkedObjId);
+        await createLinkedObject(provider, crmEntity, newEntityId, documentId);
         await writeColumn("Object Changed", counter, sheets, spreadsheetId, sheetName)
     } else {
         await new Promise(resolve => setTimeout(resolve, 250));

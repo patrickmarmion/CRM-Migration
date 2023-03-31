@@ -8,12 +8,12 @@ const readSheet = async (counter, spreadsheetId, sheetName, retries = 0) => {
             spreadsheetId,
             ranges,
         });
-        const [document_id, , , , , provider, crmEntity, , new_entity_id] = response.data.valueRanges[0].values[0];
+        const [documentId, , , , , provider, crmEntity, , newEntityId] = response.data.valueRanges[0].values[0];
         return {
-            document_id,
+            documentId,
             provider,
             crmEntity,
-            new_entity_id,
+            newEntityId,
             sheets
         };
     } catch (error) {
