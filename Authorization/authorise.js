@@ -1,4 +1,6 @@
 const fs = require('fs');
+const { promisify } = require('util');
+const writeFileAsync = promisify(fs.writeFile);
 const {
     google
 } = require('googleapis');
@@ -26,30 +28,35 @@ const authorize = async (credentials, tokenPath, refreshTokenPath) => {
 };
 
 const getNewToken = async (oAuth2Client, tokenPath, refreshTokenPath) => {
-    const authUrl = oAuth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope,
-    });
-    console.log('Authorize this app by visiting this url:', authUrl);
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
+    try {
+        const authUrl = oAuth2Client.generateAuthUrl({
+            access_type: 'offline',
+            scope,
+        });
+        console.log('Authorize this app by visiting this url:', authUrl);
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+        });
 
-    const code = await rl.questionAsync('Enter the code from that page here: ');
-    rl.close();
-    const {
-        tokens
-    } = await oAuth2Client.getToken(code);
-    oAuth2Client.setCredentials({
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        forceRefreshOnFailure: true
-    });
-    fs.writeFileSync(tokenPath, JSON.stringify(tokens));
-    fs.writeFileSync(refreshTokenPath, JSON.stringify(tokens));
-    console.log('Token stored to', tokenPath);
-    return oAuth2Client
+        const code = await rl.questionAsync('Enter the code from that page here: ');
+        rl.close();
+        const {
+            tokens
+        } = await oAuth2Client.getToken(code);
+        oAuth2Client.setCredentials({
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
+            forceRefreshOnFailure: true
+        });
+        await writeFileAsync(tokenPath, JSON.stringify(tokens));
+        await writeFileAsync(refreshTokenPath, JSON.stringify(tokens));
+        console.log('Token stored to', tokenPath);
+        return oAuth2Client
+    } catch (error) {
+        console.log(error)
+        process.exit()
+    }
 };
 
 module.exports = authorize;
