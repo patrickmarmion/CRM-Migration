@@ -1,5 +1,3 @@
 .env
 .DS_Store
 Credentials/credentials.json
-Credentials/refresh.json
-Credentials/token.json

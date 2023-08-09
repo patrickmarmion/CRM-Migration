@@ -79,8 +79,6 @@ const deleteLinkedObjs = async (ids, sheets) => {
     const { sheetData } = await readSheet([`${sheetName}!A:K`]);
     const filteredEmptyRows = sheetData.filter(subarray => subarray.length !== 10);
     const filteredEmptyIds = ids.filter(subarray => subarray.every(id => id !== undefined));
-    console.log(filteredEmptyRows);
-    console.log(filteredEmptyIds);
 
     const deleteLinkedObjURLs = filteredEmptyRows.map((row, rowIndex) => {
         const id = filteredEmptyIds[rowIndex][0];
