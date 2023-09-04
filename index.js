@@ -14,6 +14,14 @@ const concurrencyLimit = 10;
 const { promisify } = require('util');
 const setTimeoutPromise = promisify(setTimeout);
 
+/**
+ * Makes a delayed API request and returns the response data.
+ *
+ * @param {Object} request - The request object to send to the API.
+ * @param {number} delay - The delay in milliseconds before sending the request.
+ * @returns {Promise} A promise that resolves to the response data.
+ * @throws {Error} If an error occurs during the request.
+ */
 const makeDelayedApiRequest = async (request, delay) => {
     try {
         await setTimeoutPromise(delay);
@@ -24,6 +32,19 @@ const makeDelayedApiRequest = async (request, delay) => {
     }
 };
 
+/**
+ * Loops through an array of requests, making delayed API requests in batches.
+ *
+ * @param {Array} requestArrays - An array of API request objects.
+ * @param {number} rows - The number of rows.
+ * @param {Object} sheets - The sheets object.
+ * @param {string} actionName - The name of the action.
+ * @param {number} retries - The number of retries.
+ * @param {number} startIndex - The starting index.
+ * @param {Array} prevResults - The previous results.
+ * @returns {Promise} A promise that resolves to an array of results.
+ * @throws {Error} If max retries are exceeded or an error occurs during the request.
+ */
 const loopThroughIds = async (requestArrays, rows, sheets, actionName, retries = 0, startIndex = 0, prevResults = []) => {
     const urlQueue = requestArrays.slice();
     const results = prevResults.slice();
@@ -59,6 +80,13 @@ const loopThroughIds = async (requestArrays, rows, sheets, actionName, retries =
     return results;
 };
 
+/**
+ * Retrieves linked object IDs from rows and writes them to a sheet.
+ *
+ * @param {number} rows - The rows.
+ * @param {Object} sheets - The sheets object.
+ * @returns {Promise} A promise that resolves to an array of retrieved IDs.
+ */
 const retrieveLinkedObjIds = async (rows, sheets) => {
     const listLinkedObjURLs = rows.map(row => {
         return {
@@ -75,10 +103,17 @@ const retrieveLinkedObjIds = async (rows, sheets) => {
     return idArrays;
 };
 
+/**
+ * Deletes linked objects using their IDs.
+ *
+ * @param {Array} ids - An array of linked object IDs.
+ * @param {Object} sheets - The sheets object.
+ * @returns {Promise} A promise that resolves when deletion is complete.
+ */
 const deleteLinkedObjs = async (ids, sheets) => {
     const { sheetData } = await readSheet([`${sheetName}!A:K`]);
     const filteredEmptyRows = sheetData.filter(subarray => subarray.length !== 10);
-    const filteredEmptyIds = ids.filter(subarray => subarray.every(id => id !== undefined));
+    const filteredEmptyIds = ids.filter(subarray => subarray.every(id => (id !== undefined) || (id === "")));
 
     const deleteLinkedObjURLs = filteredEmptyRows.map((row, rowIndex) => {
         const id = filteredEmptyIds[rowIndex][0];
@@ -92,6 +127,13 @@ const deleteLinkedObjs = async (ids, sheets) => {
     await deleteColumn(sheets, sheetName);
 };
 
+/**
+ * Creates linked objects based on rows' data.
+ *
+ * @param {number} rows - The rows.
+ * @param {Object} sheets - The sheets object.
+ * @returns {Promise} A promise that resolves when creation is complete.
+ */
 const createLinkedObj = async (rows, sheets) => {
     const createLinkedObjectRequest = rows.map(row => {
         return {
@@ -116,3 +158,6 @@ const script = async () => {
 };
 
 script();
+
+
+//Error occured when running script for Tixr in phase delete linked object - examine logs.
